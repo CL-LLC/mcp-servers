@@ -26,6 +26,14 @@ import {
   isGitHubError,
 } from './common/errors.js';
 import { VERSION } from "./common/version.js";
+import * as dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+dotenv.config({ path: resolve(__dirname, '../../../.env') });
 
 const server = new Server(
   {
@@ -350,6 +358,9 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 });
 
 async function runServer() {
+  if (!process.env.GITHUB_TOKEN) {
+      throw new Error('GITHUB_TOKEN is required');
+  }
   const transport = new StdioServerTransport();
   await server.connect(transport);
   console.error("GitHub MCP Server running on stdio");
